@@ -1,0 +1,15 @@
+Thiele Molecular Dynamics
+
+TO COMPILE:
+
+mkdir build
+cd build
+cmake ..
+make
+
+and it should be in bin/a.out
+
+
+TO CONVERT .PPM FILES TO VIDEO (using ffmpeg):
+cd bin/images
+ffmpeg -pattern_type glob -framerate 5 -i "*.ppm" test.avi -y

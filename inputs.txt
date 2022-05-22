@@ -1,0 +1,14 @@
+rows 20
+columns 20
+simulationlength 90000
+noparticles 456
+temperature 200
+minimumTemp 0.2
+coolingrate 0.99
+lambda 1
+savecounter 500
+periodic 1
+hallAngleDegrees 70
+shearForceMagnitude 0.001
+shearForceStartTime 45000
+shearForceEndTime 60000
