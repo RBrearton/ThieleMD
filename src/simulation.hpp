@@ -5,9 +5,6 @@
 #include <memory>
 #include <random>
 
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-
 #include "datamanager.hpp"
 #include "grid.hpp"
 
@@ -26,21 +23,17 @@ private:
   double drag;
   double numParticles; // the number of particles in the grid
   double shearForceMagnitude = 0;
-  // the step number at which the shear force is introduced.
-  int shearForceStartTime = 0; 
+  // The step number at which the shear force is introduced.
+  int shearForceStartTime = 0;
   int shearForceEndTime = 0;
 
+  // Not currently in use.
   std::atomic<int> threadNum;
-
-  boost::asio::io_service io_service;
-
-  std::unique_ptr<boost::asio::io_service::work> work;
-  boost::thread_group threadpool;
 
   std::ofstream smtest;
 
-  void threadWork();
-  double thermalNoise(); // Generates a random number to adjust position by, based on the temperature.
+  // Generates a random number to adjust position by, based on the temperature.
+  double thermalNoise();
 
 public:
   Simulation(Grid grid);
@@ -64,6 +57,4 @@ public:
   void relax(int numSteps);
 
   void runTimeStep(int stepNumber);
-
-  boost::mutex lockCout;
 };

@@ -59,7 +59,7 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
     // creates an image with a number of pixels given by the grid COLS and ROWS
     // a white pixel denotes no skyrmion, a black pixel denotes a skyrmion
 
-    // Currently we are writing as a .pbm, but if we want colour we could use a 
+    // Currently we are writing as a .pbm, but if we want colour we could use a
     // .ppm instead (though the code should be change to allow that).
 
     // here we append zeroes to the frame labels so that the video encoder does not misorder frames
@@ -85,7 +85,7 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
 
     img << "P1" << std::endl;
     img << width << " " << height << std::endl;
-    //img << "255" << std::endl;
+    // img << "255" << std::endl;
 
     file.seekg(byteIndex, file.beg);
 
@@ -94,12 +94,13 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
     file.seekg(4, file.cur); // skip the timeframe int
 
     // currently a boolean array, noting whether a particle exists at that position
-    int imageMatrix[width * height] = {0};
+    int imageMatrix[width * height];
+    memset(imageMatrix, 0, sizeof imageMatrix);
 
     double x = 0;
     double y = 0;
     float squareParticleRadius = particleRadius * particleRadius;
-    
+
     for (int i = 0; i < numberParticles; ++i)
     {
         // fill the boolean matrix which holds particle positions
@@ -136,7 +137,6 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
         }
     }
 
-
     for (int j = height - 1; j >= 0; --j)
     {
         for (int i = 0; i < width; ++i)
@@ -147,8 +147,6 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
 
     file.close();
     img.close();
-
-
 }
 
 void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
@@ -161,15 +159,14 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
     int width = grid->getRows() * imageResolution;
     int height = grid->getCols() * imageResolution;
 
-
     file.seekg(byteIndex, file.beg);
 
     int numberParticles = 0;
     file.read(reinterpret_cast<char *>(&numberParticles), 4);
     file.seekg(4, file.cur); // skip the timeframe int
 
-    fftw_complex* ftMatrix;
-    ftMatrix = (fftw_complex*) fftw_malloc(height * width * sizeof(fftw_complex));
+    fftw_complex *ftMatrix;
+    ftMatrix = (fftw_complex *)fftw_malloc(height * width * sizeof(fftw_complex));
     // Initialize as all zeroes.
     for (int i = 0; i < width; ++i)
     {
@@ -182,7 +179,7 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
 
     double x = 0;
     double y = 0;
-    
+
     for (int i = 0; i < numberParticles; ++i)
     {
         // fill the boolean matrix which holds particle positions
@@ -196,55 +193,50 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
         int x_pos = (int)rint(x * imageResolution);
         int y_pos = (int)rint(y * imageResolution);
 
-        if(x_pos >= width || x_pos < 0) continue;
-        if(y_pos >= height || y_pos < 0) continue;
+        if (x_pos >= width || x_pos < 0)
+            continue;
+        if (y_pos >= height || y_pos < 0)
+            continue;
 
         ftMatrix[x_pos + (width * y_pos)][0] = pow(-1.0, x_pos + y_pos);
-                
-            
-        
     }
 
-
-
-//     double realOut = 0;
-//    double imgOut = 0;
-//    double ampOut[width][height] = {0};
-//    for (int yWave = 0; yWave < height; yWave++) {
-//       for (int xWave = 0; xWave < width; xWave++) {
-//          for (int ySpace = 0; ySpace < height; ySpace++) {
-//             for (int xSpace = 0; xSpace < width; xSpace++) {
-//                realOut = (ftMatrix[ySpace][xSpace] * cos(2 *
-//                   M_PI * ((1.0 * xWave * xSpace / width) + (1.0 * yWave * ySpace /
-//                   height)))) / sqrt(width * height);
-//                imgOut = (ftMatrix[ySpace][xSpace] * sin(2 * M_PI
-//                   * ((1.0 * xWave * xSpace / width) + (1.0 * yWave * ySpace / height)))) /
-//                   sqrt( width * height);
-//                ampOut[yWave][xWave] = sqrt(
-//                   (realOut * realOut) +
-//                   (imgOut * imgOut));
-//             }
-//          }
-//       }
-//       std::cout << "Fourier Line " << yWave << "finished." <<std::endl;
-//    }
-
-
+    //     double realOut = 0;
+    //    double imgOut = 0;
+    //    double ampOut[width][height] = {0};
+    //    for (int yWave = 0; yWave < height; yWave++) {
+    //       for (int xWave = 0; xWave < width; xWave++) {
+    //          for (int ySpace = 0; ySpace < height; ySpace++) {
+    //             for (int xSpace = 0; xSpace < width; xSpace++) {
+    //                realOut = (ftMatrix[ySpace][xSpace] * cos(2 *
+    //                   M_PI * ((1.0 * xWave * xSpace / width) + (1.0 * yWave * ySpace /
+    //                   height)))) / sqrt(width * height);
+    //                imgOut = (ftMatrix[ySpace][xSpace] * sin(2 * M_PI
+    //                   * ((1.0 * xWave * xSpace / width) + (1.0 * yWave * ySpace / height)))) /
+    //                   sqrt( width * height);
+    //                ampOut[yWave][xWave] = sqrt(
+    //                   (realOut * realOut) +
+    //                   (imgOut * imgOut));
+    //             }
+    //          }
+    //       }
+    //       std::cout << "Fourier Line " << yWave << "finished." <<std::endl;
+    //    }
 
     fftw_complex *ftOut;
-    ftOut = (fftw_complex*) fftw_malloc(height * width * sizeof(fftw_complex));
+    ftOut = (fftw_complex *)fftw_malloc(height * width * sizeof(fftw_complex));
     fftw_plan plan;
     plan = fftw_plan_dft_2d(width, height, ftMatrix, ftOut, FFTW_FORWARD, FFTW_ESTIMATE);
-    //std::cout << "FT Planned." << std::endl;
+    // std::cout << "FT Planned." << std::endl;
     fftw_execute_dft(plan, ftMatrix, ftOut);
-    //std::cout << "FT Done." << std::endl;
+    // std::cout << "FT Done." << std::endl;
     fftw_destroy_plan(plan);
-        
+
     fftw_free(ftMatrix);
 
-        //rfftwnd_create_plan rfftwnd_create_plan(int rank, const int *n,
-          //                       fftw_direction dir, int flags);
-          std::string imagePath = "../bin/fourierimages/image";
+    // rfftwnd_create_plan rfftwnd_create_plan(int rank, const int *n,
+    //                        fftw_direction dir, int flags);
+    std::string imagePath = "../bin/fourierimages/image";
     if (frameIndex < 10)
         imagePath += "000" + std::to_string(frameIndex);
     else if (frameIndex < 100)
@@ -257,21 +249,22 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
 
     std::ofstream fourier(imagePath);
 
-    if(fourier)
+    if (fourier)
     {
         fourier << "P2" << std::endl;
         fourier << width << " " << height << std::endl;
         fourier << 255 << std::endl; // 255 shades between white and black.
-        //double imagePixels[width * height] = {0};
+        // double imagePixels[width * height] = {0};
         double maxPixelBrightness = 0;
 
         for (int j = height - 1; j >= 0; --j)
         {
             for (int i = 0; i < width; ++i)
             {
-                //fourier << ampOut[i][j];
+                // fourier << ampOut[i][j];
                 ftOut[i + (height * j)][0] = ((ftOut[i + (height * j)][0] * ftOut[i + (height * j)][0]) +
-                    (ftOut[i + (height * j)][1] * ftOut[i + (height * j)][1]))/sqrt(height*width);
+                                              (ftOut[i + (height * j)][1] * ftOut[i + (height * j)][1])) /
+                                             sqrt(height * width);
 
                 // // Push it all into the unit square at the centre of the image.
                 // int x_pos = (width / 2) - (10 * (int)remainder((i - (width/2)), (2 * M_PI * imageResolution)));
@@ -280,14 +273,14 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
                 // int y_pos = (height / 2) - (10 * (int)remainder((j - (height/2)), (2 * M_PI * imageResolution)));
                 // if(y_pos < 0 || y_pos >= height) y_pos = 0;
                 // ftOut[x_pos + (height * y_pos)][3] += ftOut[i + (height * j)][0];
-                
+
                 ftOut[i + (height * j)][0] = log(1 + ftOut[i + (height * j)][0]);
 
-                //value = log(1 + value);
-                //imagePixels[i + (height * j)] = value;
-                if(ftOut[i + (height * j)][0] > maxPixelBrightness) 
+                // value = log(1 + value);
+                // imagePixels[i + (height * j)] = value;
+                if (ftOut[i + (height * j)][0] > maxPixelBrightness)
                     maxPixelBrightness = ftOut[i + (height * j)][0];
-                //fourier << (int)(value * 255) << " ";
+                // fourier << (int)(value * 255) << " ";
             }
         }
 
@@ -310,16 +303,16 @@ void DataManager::fourierToImage(Grid *grid, int byteIndex, int frameIndex)
             for (int i = 0; i < width; ++i)
             {
                 // Low cutoff, for better visualization (removes some noise)
-                if(ftOut[i + (height * j)][0] / maxPixelBrightness <= 0.01) ftOut[i + (height * j)][0] = 0;
-                //fourier << 0 << " ";
+                if (ftOut[i + (height * j)][0] / maxPixelBrightness <= 0.01)
+                    ftOut[i + (height * j)][0] = 0;
+                // fourier << 0 << " ";
                 fourier << (int)(255 * ftOut[i + (height * j)][0] / maxPixelBrightness) << " ";
             }
         }
-
     }
     fourier.close();
     fftw_free(ftOut);
-    //std::cout << "Fourier Image Saved. Step " << frameIndex << std::endl;
+    // std::cout << "Fourier Image Saved. Step " << frameIndex << std::endl;
 }
 
 void DataManager::convertToImages(Grid *grid)
@@ -335,7 +328,7 @@ void DataManager::convertToImages(Grid *grid)
     file.seekg(0, file.beg);
     int numberParticles = 0;
     file.read(reinterpret_cast<char *>(&numberParticles), 4);
-    int frameSize = 8 + numberParticles * 20; //See below
+    int frameSize = 8 + numberParticles * 20; // See below
     // get the length of the file
     file.seekg(0, file.end);
     int fileLength = file.tellg(); // length of file
@@ -367,9 +360,9 @@ void DataManager::writeFile()
 
 void DataManager::saveParticle(std::ofstream *stream, Particle *particle)
 {
-    //Int so 4 bytes long.
+    // Int so 4 bytes long.
     stream->write(reinterpret_cast<char *>(&(particle->id)), 4);
-    //Doubles so 8 bytes long.
+    // Doubles so 8 bytes long.
     stream->write(reinterpret_cast<char *>(&(particle->pos_x)), 8);
     stream->write(reinterpret_cast<char *>(&(particle->pos_y)), 8);
 }

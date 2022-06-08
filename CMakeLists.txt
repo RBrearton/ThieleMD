@@ -1,11 +1,11 @@
 # minimum version for cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.23.1)
 
 # project's name
 project(MolecularDynamics)
 
 # define some constant we'll use as compiler flags
-SET(COMPILER_FLAGS "-march=native")
+SET(COMPILER_FLAGS)
 add_definitions(${COMPILER_FLAGS})
 
 # define location for produced binaries
@@ -23,13 +23,15 @@ file(GLOB SRC_FILES
   "src/*.hpp"
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${X11_INCLUDE_DIR})
 
-find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(FFTW REQUIRED fftw3 IMPORTED_TARGET)
 
 add_executable(a.out ${SRC_FILES})
 
-target_link_libraries(a.out m boost_system boost_thread fftw3)
+include_directories(PkgConfig::FFTW)
+target_link_libraries(a.out m PkgConfig::FFTW)

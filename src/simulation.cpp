@@ -3,15 +3,13 @@
 Simulation::Simulation(Grid grid)
     : grid(grid),
       threadNum{0},
-      io_service{},
-      work(new boost::asio::io_service::work(io_service)),
       smtest("../data/smtest.dat") {}
 
 void Simulation::setSaveCounter(int savecounter) { this->dataManager.saveCounter = savecounter; }
 
 void Simulation::setTemperature(double temp) { this->temperature = temp; }
 double Simulation::getTemperature() { return temperature; }
-void Simulation::setMinimumTemp(double minTemp) { this->minimumTemp = minTemp;}
+void Simulation::setMinimumTemp(double minTemp) { this->minimumTemp = minTemp; }
 void Simulation::setCoolingRate(double cool) { this->coolingRate = cool; }
 void Simulation::coolTemperature()
 {
@@ -31,48 +29,14 @@ double Simulation::thermalNoise()
     return dist(generator);
 }
 
-void Simulation::initThreads(int numThreads)
-{
-    // initialize the threads to run in the threadpool - only call once!
-    // maybe this would be better off in the constructor...
-    for (int i = 0; i < numThreads; ++i)
-    {
-        threadpool.create_thread(std::bind(&Simulation::threadWork, this));
-    }
-}
-
 void Simulation::addConstraint(std::function<void(Particle *)> constraint)
 {
     // add a constraint to the system, used to define inaccessible locations
     constraints.push_back(constraint);
 }
 
-void Simulation::threadWork()
+void Simulation::setShearForce(double shearForce, int shearForceStart, int shearForceEnd)
 {
-    // run through all the threads in the threadpool and make them do idle work
-    lockCout.lock();
-    std::cout << "Initialized thread number " << threadNum++ << std::endl;
-    lockCout.unlock();
-
-    io_service.run();
-
-    lockCout.lock();
-    std::cout << "Exited thread number " << --threadNum << std::endl;
-    lockCout.unlock();
-}
-
-void Simulation::exitThreads()
-{
-    // reset the work
-    work.reset();
-
-    // join_all should now hang until all actual work has finished processing
-    threadpool.join_all();
-}
-
-
-void Simulation::setShearForce(double shearForce, int shearForceStart, int shearForceEnd) 
-{  
     this->shearForceMagnitude = shearForce;
     this->shearForceStartTime = shearForceStart;
     this->shearForceEndTime = shearForceEnd;
@@ -80,28 +44,29 @@ void Simulation::setShearForce(double shearForce, int shearForceStart, int shear
 
 void Simulation::shearForce(Particle *particle)
 {
-    // Fx = 1 / (y - midpoint)^2. 
+    // Fx = 1 / (y - midpoint)^2.
     // This leeps the force symmetrical and continuous at boundaries.
     // Also, avoid singularities (though crudely). It is almost impossible for this
     // to happen, however.
-    if(particle->pos_y == grid.getRows()*0.5) particle->pos_y = particle->pos_y + 0.000001;
+    if (particle->pos_y == grid.getRows() * 0.5)
+        particle->pos_y = particle->pos_y + 0.000001;
     double shear_force_x = 1 / (particle->pos_y - ((double)grid.getRows() * 0.5));
     shear_force_x *= shearForceMagnitude * shear_force_x;
     particle->force_x = particle->force_x + shear_force_x;
 
-    if(particle->pos_x == grid.getCols()*0.5) particle->pos_x = particle->pos_x + 0.000001;
+    if (particle->pos_x == grid.getCols() * 0.5)
+        particle->pos_x = particle->pos_x + 0.000001;
     double shear_force_y = 1 / (particle->pos_x - ((double)grid.getCols() * 0.5));
     shear_force_y *= shearForceMagnitude * shear_force_y;
     particle->force_y = particle->force_y + shear_force_y;
-    
 }
 
 void Simulation::runTimeStep(int stepNumber)
 {
     /*
-    Makes interaction list, calculates forces and then moves the particles 
+    Makes interaction list, calculates forces and then moves the particles
     according to the force acting on them. Also takes into account temperature
-    effects and other external forces, as well as taking simulation geometry 
+    effects and other external forces, as well as taking simulation geometry
     into account by iterating over constraints.
     */
     grid.makeInteractionList();
@@ -123,7 +88,8 @@ void Simulation::runTimeStep(int stepNumber)
     for (Particle *particle : particles)
     {
         // Only apply the shear force after a given time step.
-        if(stepNumber >= shearForceStartTime && stepNumber < shearForceEndTime)  shearForce(particle);
+        if (stepNumber >= shearForceStartTime && stepNumber < shearForceEndTime)
+            shearForce(particle);
 
         // TEMPORARY - setting dt = 0.001.
         particle->actForce(dt);
@@ -169,7 +135,7 @@ void Simulation::relax(int numSteps)
         // Save at a constant number of timesteps. Change to an input number.
         if (i % dataManager.saveCounter == 0)
         {
-            std::cout <<  "Saving to file: Step " << i << ". " << std::endl;
+            std::cout << "Saving to file: Step " << i << ". " << std::endl;
             // Currently saves just the binary data at each given timestep.
             dataManager.saveFrame(i, grid.getParticles());
         }
@@ -188,8 +154,8 @@ void Simulation::relax(int numSteps)
     //         dataManager.convertToImages(&grid);
     //     }
     // }
-    
+
     dataManager.convertToImages(&grid);
 
-    //End of Simulation
+    // End of Simulation
 }

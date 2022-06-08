@@ -140,7 +140,7 @@ void Grid::updateParticle(Particle *particle)
 void Grid::makeInteractionList()
 {
     /*
-    Iterate over each cell in the grid. If the cell contains a particle, check 
+    Iterate over each cell in the grid. If the cell contains a particle, check
     if any nearest neighbour cells also contain a particle. If they do, add the
     particle pair to the interaction list.
     */
@@ -149,10 +149,10 @@ void Grid::makeInteractionList()
     // TODO: optimization, multithreading, different boundary conditions
 
     // loop over all the cells
-    int num_cols{cells.size()};
+    size_t num_cols{cells.size()};
     for (int i = 0; i < num_cols; ++i)
     {
-        int num_rows{cells[i].size()};
+        size_t num_rows{cells[i].size()};
         for (int j = 0; j < num_rows; ++j)
         {
             // further optimizations are possible! currently not "remembering"

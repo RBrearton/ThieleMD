@@ -8,7 +8,6 @@
 #include <math.h>
 #include <fftw3.h>
 
-
 class DataManager
 {
 private:
@@ -17,7 +16,7 @@ private:
     // put a particle's position into a consistent format to save frame.
     void saveParticle(std::ofstream *stream, Particle *particle);
     int imageResolution = 64; // the side length of each cell in pixels
-    int particleRadius = 3;    // the graphical radius (number of pixels) of each particle in the simulation
+    int particleRadius = 3;   // the graphical radius (number of pixels) of each particle in the simulation
 
     std::string filePath = "../bin/data.bin";
     std::string imageDir = "../bin/images/";
