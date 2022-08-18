@@ -1,4 +1,5 @@
 #include "datamanager.hpp"
+#include <cstring>
 
 DataManager::DataManager() {}
 
@@ -94,7 +95,7 @@ void DataManager::convertFrameToImage(Grid *grid, int byteIndex, int frameIndex)
     file.seekg(4, file.cur); // skip the timeframe int
 
     // currently a boolean array, noting whether a particle exists at that position
-    int imageMatrix[width * height];
+    int *imageMatrix = new int[width * height];
     memset(imageMatrix, 0, sizeof imageMatrix);
 
     double x = 0;

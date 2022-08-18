@@ -23,7 +23,7 @@ bool Grid::is_close_periodic(Particle *part_1, Particle *part_2)
     double dist_squared = dx * dx + dy * dy;
 
     // no need to sqrt! If particles are too far, return false
-    if (dist_squared > 1.0 || dist_squared == 0)
+    if (dist_squared > 1 || dist_squared == 0)
         return false;
 
     return true;
@@ -40,6 +40,7 @@ bool Grid::is_close(Particle *part_1, Particle *part_2)
     // no need to sqrt! If particles are further apart than 1, return false
     if (dist_sq > 1.0 || dist_sq == 0)
         return false;
+
     return true;
 }
 
@@ -187,6 +188,10 @@ void Grid::makeInteractionList()
             std::vector<Particle *> nearParticles; // init empty storage vectors
             std::vector<Particle *> temp;
 
+            // check its own cell
+            // temp = cells[i][j].getParticles();
+            // nearParticles.insert(nearParticles.end(), temp.begin(), temp.end());
+
             // check "top right" neighbour
             temp = cells[right][up].getParticles();
             nearParticles.insert(nearParticles.end(), temp.begin(), temp.end());
@@ -231,23 +236,26 @@ void Grid::makeInteractionList()
 
             // now deal with interactions between particles in the same cell
             // dont bother if there's only one particle in there
-            if (particles.size() == 1)
+            if (particles.size() == 1 || particles.size() == 0)
                 continue;
 
-            // loop over all particles in the cell avoiding repeats
-            for (int i = 0; i < particles.size(); ++i)
+            else
             {
-
-                for (int j = i; j < particles.size(); ++j)
+                // loop over all particles in the cell avoiding repeats
+                for (int i = 0; i < particles.size(); ++i)
                 {
-                    // make sure they're close enough to actually interact
-                    if (is_close_periodic(particles[i], particles[j]))
-                    {
-                        // make the particle pair
-                        std::array<Particle *, 2>
-                            interact_pair{particles[i], particles[j]};
 
-                        interactionList.push_back(interact_pair);
+                    for (int j = i; j < particles.size(); ++j)
+                    {
+                        // make sure they're close enough to actually interact
+                        if (is_close_periodic(particles[i], particles[j]))
+                        {
+                            // make the particle pair
+                            std::array<Particle *, 2>
+                                interact_pair{particles[i], particles[j]};
+
+                            interactionList.push_back(interact_pair);
+                        }
                     }
                 }
             }

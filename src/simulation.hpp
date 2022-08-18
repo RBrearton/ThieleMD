@@ -4,6 +4,12 @@
 #include <fstream>
 #include <memory>
 #include <random>
+#include <array>
+#include <cmath>
+#include <exception>
+#include <functional>
+#include <iostream>
+#include <vector>
 
 #include "datamanager.hpp"
 #include "grid.hpp"
@@ -28,7 +34,7 @@ private:
   int shearForceEndTime = 0;
 
   // Not currently in use.
-  std::atomic<int> threadNum;
+  // std::atomic<int> threadNum;
 
   std::ofstream smtest;
 

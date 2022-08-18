@@ -13,6 +13,8 @@
 class Grid
 {
 private:
+  //
+  // void makeInteractionList(Particle *part_1, Particle *part_2);
   // checks to see if particles part_1 and part_2 are close enough to interact
   bool is_close(Particle *part_1, Particle *part_2);
   // as above, but with periodic boundary conditions
@@ -20,8 +22,8 @@ private:
   // as above, but in a system with circular symmetry
   bool is_close_circular(Particle *part_1, Particle *part_2);
 
-  //holds which function to use, is_close or is_close_periodic depending on
-  // whether the system is periodic.
+  // holds which function to use, is_close or is_close_periodic depending on
+  //  whether the system is periodic.
   std::function<bool(Particle *, Particle *)> is_close_function =
       std::bind(&Grid::is_close_periodic, this, std::placeholders::_1, std::placeholders::_2);
 

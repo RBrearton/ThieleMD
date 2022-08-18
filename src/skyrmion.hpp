@@ -6,13 +6,13 @@
 class Skyrmion : public Vortex
 {
 private:
-    // // Determines the offset of the Skyrmions trajectory
-    // double hallAngle = 0; 
+  // // Determines the offset of the Skyrmions trajectory
+  // double hallAngle = 0;
 
-    // Sin and Cos of the hallAngle. These are saved after initial parameters
-    // are set so that they need not be calculated at run time for each step.
-    double sinTh;
-    double cosTh;
+  // Sin and Cos of the hallAngle. These are saved after initial parameters
+  // are set so that they need not be calculated at run time for each step.
+  double sinTh;
+  double cosTh;
 
 public:
   using Vortex::Vortex;

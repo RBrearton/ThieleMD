@@ -2,8 +2,10 @@
 
 Simulation::Simulation(Grid grid)
     : grid(grid),
-      threadNum{0},
-      smtest("../data/smtest.dat") {}
+      // threadNum{0},
+      smtest("../data/smtest.dat")
+{
+}
 
 void Simulation::setSaveCounter(int savecounter) { this->dataManager.saveCounter = savecounter; }
 
@@ -17,6 +19,7 @@ void Simulation::coolTemperature()
         return;
     setTemperature(temperature * coolingRate);
 }
+
 double Simulation::thermalNoise()
 {
     // Setting the temperature to <= zero turns off temperature fluctuations.
@@ -104,7 +107,6 @@ void Simulation::runTimeStep(int stepNumber)
         {
             constraint(particle);
         }
-
         // Need to update each particle's cell if it has moved cell.
         // If it has moved, it needs to be removed from the previous and added to the new cell.
         // Update its cell, since it has moved.

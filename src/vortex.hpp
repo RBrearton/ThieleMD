@@ -22,8 +22,8 @@ public:
 
   void setParameters(int *rows, int *cols, double lambda);
 
-  //virtual void actForce(double dt);
-  
+  // virtual void actForce(double dt);
+
   virtual void interact(Particle *particle) override;
   virtual void interactWall() override;
 };

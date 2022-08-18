@@ -94,8 +94,7 @@ void periodicBoundary(Particle *particle)
 {
     // This boundary condition is recursively called until
     // the given particle is back within the box.
-    if(particle->pos_x >= 0 && particle->pos_x < COLS
-    && particle->pos_y >= 0 && particle->pos_y < ROWS)
+    if (particle->pos_x >= 0 && particle->pos_x < COLS && particle->pos_y >= 0 && particle->pos_y < ROWS)
     {
         // Stop the recrusive calling.
         return;
@@ -119,7 +118,7 @@ void periodicBoundary(Particle *particle)
         particle->pos_y = particle->pos_y + ROWS;
     }
 
-    // Recursively call this constraint until the particle is 
+    // Recursively call this constraint until the particle is
     // back within the box.
     periodicBoundary(particle);
 }
@@ -150,19 +149,19 @@ void twistBoundary(Particle *particle)
     particle->interactWall();
 }
 
-//Method to add any number of random particles to system.
+// Method to add any number of random particles to system.
 void addRandomVortices(Grid *grid, int numParticles, double lambda)
 {
-    /* 
+    /*
     We create an array of vortex addresses for the number of random particles we want.
-    Then we create that many particles at random x and y positions, then add them to 
+    Then we create that many particles at random x and y positions, then add them to
     the grid.
     */
     srand(time(NULL));
     Vortex *vortices[numParticles];
     for (int i = 0; i < numParticles; ++i)
     {
-        //Vortex v(((float)std::rand() / (float) RAND_MAX) * ROWS, ((float)std::rand() / (float) RAND_MAX) * COLS);
+        // Vortex v(((float)std::rand() / (float) RAND_MAX) * ROWS, ((float)std::rand() / (float) RAND_MAX) * COLS);
         vortices[i] = new Vortex(((float)std::rand() / (float)RAND_MAX) * ROWS,
                                  ((float)std::rand() / (float)RAND_MAX) * COLS);
         vortices[i]->setParameters(&ROWS, &COLS, lambda);
@@ -172,27 +171,27 @@ void addRandomVortices(Grid *grid, int numParticles, double lambda)
 
 void addRandomSkyrmions(Grid *grid, int numParticles, double lambda, double hallAngle)
 {
-    /* 
+    /*
     We create an array of vortex addresses for the number of random particles we want.
-    Then we create that many particles at random x and y positions, then add them to 
+    Then we create that many particles at random x and y positions, then add them to
     the grid.
     */
     srand(time(NULL));
     Skyrmion *skyrmions[numParticles];
     for (int i = 0; i < numParticles; ++i)
     {
-        //Vortex v(((float)std::rand() / (float) RAND_MAX) * ROWS, ((float)std::rand() / (float) RAND_MAX) * COLS);
+        // Vortex v(((float)std::rand() / (float) RAND_MAX) * ROWS, ((float)std::rand() / (float) RAND_MAX) * COLS);
         skyrmions[i] = new Skyrmion(((float)std::rand() / (float)RAND_MAX) * ROWS,
-                                 ((float)std::rand() / (float)RAND_MAX) * COLS);
+                                    ((float)std::rand() / (float)RAND_MAX) * COLS);
         skyrmions[i]->setParameters(&ROWS, &COLS, lambda, hallAngle);
         grid->addParticle(skyrmions[i]);
 
-        //TEMP: Square grid for 576 particles
-        //         skyrmions[i] = new Skyrmion(((i%24)/4.0)+0.1,
-        //                          ((i/24)/4.0)+0.1);
-        //                          //std::cout << i%ROWS << " " << i/COLS << std::endl;
-        // skyrmions[i]->setParameters(&ROWS, &COLS, lambda, hallAngle);
-        // grid->addParticle(skyrmions[i]);
+        // TEMP: Square grid for 576 particles
+        //          skyrmions[i] = new Skyrmion(((i%24)/4.0)+0.1,
+        //                           ((i/24)/4.0)+0.1);
+        //                           //std::cout << i%ROWS << " " << i/COLS << std::endl;
+        //  skyrmions[i]->setParameters(&ROWS, &COLS, lambda, hallAngle);
+        //  grid->addParticle(skyrmions[i]);
     }
 }
 
@@ -261,14 +260,12 @@ int main()
 
     Grid grid(ROWS, COLS);
 
-    //addRandomVortices(&grid, numberparticles, lambda);
+    // addRandomVortices(&grid, numberparticles, lambda);
     addRandomSkyrmions(&grid, numberparticles, lambda, hallAngle);
-    
+
     std::cout << "There are "
               << grid.getNumParticles() << " particles in the system."
               << std::endl;
-
-    // grid.makeInteractionList();
 
     if (periodic == 1)
     {
@@ -283,17 +280,19 @@ int main()
     // testing threading
     Simulation simulation(grid);
     simulation.setSaveCounter(savecounter);
-    simulation.setShearForce(shearForceMag, shearForceStart, shearForceEnd);
+    // if shear force required for the simulation, add this line.
+    // simulation.setShearForce(shearForceMag, shearForceStart, shearForceEnd);
 
     if (periodic == 1)
     {
-        //constraints need to be added after simulation is made.
+        // constraints need to be added after simulation is made.
         simulation.addConstraint(&periodicBoundary);
     }
     else
     {
         simulation.addConstraint(&twistBoundary);
     }
+
     // std::cout << grid.getInteractionList().size() << std::endl;
 
     // assign whether the simulation is periodic, including constraints.
@@ -305,9 +304,8 @@ int main()
     simulation.setMinimumTemp(minTemp);
     simulation.setCoolingRate(coolingRate);
     simulation.relax(simulationLength);
-
     // this is where the simulation ends
-    //simulation.exitThreads();
+    // simulation.exitThreads();
 
     // simulation.lockCout.lock();
     std::cout << "Executed in " << timer.elapsed() / 1e9 << "s" << std::endl;
